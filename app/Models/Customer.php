@@ -18,6 +18,16 @@ class Customer extends BaseModel
         });
     }
 
+    public function getAllData()
+    {
+        return $this->orderBy('no_anggota')->get('*');
+    }
+
+    public function getOptions()
+    {
+        return $this->orderBy('nama')->get(['id', 'nama']);
+    }
+
     protected static function generateNoAnggota()
     {
         $customer = new Customer();

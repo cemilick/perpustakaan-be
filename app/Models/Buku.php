@@ -13,4 +13,9 @@ class Buku extends BaseModel
         'created_by',
         'updated_by'
     ];
+
+    public function getOptions()
+    {
+        return $this->orderBy('judul')->get(['id', 'judul']);
+    }
 }
