@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\BaseModel;
-use App\Traits\HasCrudAction;
 use App\Traits\HasResponseJson;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -12,7 +11,7 @@ use Spatie\RouteDiscovery\Attributes\Route;
 
 class BaseController extends Controller
 {
-    use HasResponseJson, HasCrudAction;
+    use HasResponseJson;
 
     protected BaseModel $model;
 
@@ -43,10 +42,8 @@ class BaseController extends Controller
     #[Route('post', '{id}')]
     public function update(Request $request, $id)
     {
-        $payload = $this->populatePayload($request->all());
-
         $model = $this->model->findOrFail($id);
-        $model->fill($payload);
+        $model->fill($request->all());
         $model->save();
 
         return $this->responseJson($model);
@@ -55,8 +52,7 @@ class BaseController extends Controller
     #[Route('post', '/')]
     public function create(Request $request)
     {
-        $payload = $this->populatePayload($request->all(), true);
-        $payload = $this->beforeCreateHook($payload);
+        $payload = $this->beforeCreateHook($request->all());
 
         $model = $this->model->fill($payload);
         $model->save();
