@@ -23,12 +23,28 @@ class BaseController extends Controller
         $this->model = new $this->class;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $data = $this->model->getAllData();
-        $response = new LengthAwarePaginator($data, $data->count(), 10);
+        $limit = $request->get('limit', 10);
+        $page = $request->get('page', 1);
 
-        return $this->responseJson($this->transformIndexData($response));
+        $allData = $this->model->getAllData();
+        $total = $allData->count();
+        $data = $allData->forPage($page, $limit)->values();
+
+        if ($page <= 0) {
+            $page = 1;
+        }
+
+        return $this->responseJson($this->transformIndexData([
+            'data' => $data,
+            'current_page' => intval($page),
+            'per_page' => intval($limit),
+            'total_page' => ceil($total / $limit),
+            'total_data' => $data->count(),
+            'total' => $total,
+            'offset' => ($page - 1) * $limit,
+        ]));
     }
 
     #[Route('get', '{id}')]
