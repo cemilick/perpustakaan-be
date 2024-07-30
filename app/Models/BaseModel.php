@@ -10,10 +10,17 @@ class BaseModel extends Model
 {
     use HasUuids;
 
+    protected $withoutAuthor = false;
+
     protected static function booted()
     {
         static::creating(function ($model) {
             $model->id = Str::orderedUuid();
+
+            if ($model->withoutAuthor) {
+                return;
+            }
+
             $model->created_by = auth()->id();
             $model->updated_by = auth()->id();
         });
@@ -21,7 +28,7 @@ class BaseModel extends Model
 
     public function getAllData()
     {
-        return $this->all();
+        return $this->orderByDesc('updated_at')->get('*');
     }
 
     public function getDataById($id)
