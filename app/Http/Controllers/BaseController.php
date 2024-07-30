@@ -28,7 +28,7 @@ class BaseController extends Controller
         $data = $this->model->getAllData();
         $response = new LengthAwarePaginator($data, $data->count(), 10);
 
-        return $this->responseJson($response);
+        return $this->responseJson($this->transformIndexData($response));
     }
 
     #[Route('get', '{id}')]
@@ -46,7 +46,7 @@ class BaseController extends Controller
         $model->fill($request->all());
         $model->save();
 
-        return $this->responseJson($model);
+        return $this->responseJson($this->afterUpdateHook($model));
     }
 
     #[Route('post', '/')]
@@ -54,15 +54,37 @@ class BaseController extends Controller
     {
         $payload = $this->beforeCreateHook($request->all());
 
+        if (!$payload) {
+            return response()->json([
+                'message' => 'Stok buku kosong',
+                'status' => 400,
+            ], 400);
+        }
+
         $model = $this->model->fill($payload);
         $model->save();
 
-        return $this->responseJson($model);
+        return $this->responseJson($this->afterCreateHook($model));
     }
 
     protected function beforeCreateHook($payload)
     {
         return $payload;
+    }
+
+    protected function afterCreateHook($model)
+    {
+        return $model;
+    }
+
+    protected function transformIndexData($data)
+    {
+        return $data;
+    }
+
+    protected function afterUpdateHook($model)
+    {
+        return $model;
     }
 
 }

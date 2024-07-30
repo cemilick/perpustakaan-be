@@ -9,6 +9,7 @@ class Buku extends BaseModel
         'penerbit',
         'jumlah_halaman',
         'stok',
+        'harga',
         'created_by',
         'updated_by'
     ];
